@@ -1,4 +1,54 @@
-STR mystr "Hello world!"
-NUM x <LEN>.mystr
-NUM y <LEN>.x
-OUT y
+// VAR DECLARATION
+
+STR mystr "Hello, World!"
+NUM x 15
+BOOL isEven False
+
+// STRING ATTRIBUTES
+
+NUM mystrlength <LEN>.mystr
+
+// I/O
+
+IN mystr
+OUT mystr
+
+// DEFINING FUNCTIONS
+
+DEF double NUM a
+ADD a b
+RET NUM a
+ENDDEF
+
+// CALLING DEFINED FUNCTIONS AND RETRIEVING RETURN VALUES
+
+double 25
+NUM result @RET
+OUT result
+
+// GOTO, CMP and JMP
+
+//   GOTO takes 2 arguments: a Bool value, and an address to go to.
+//   The address has to start with a hyphen.
+//   GOTO will jump if the value of the Bool that is being passed is True.
+
+-START
+GOTO isEven -START
+
+//   CMP takes four arguments: 
+//      a Bool address to store a comparison's value,
+//      a LHS value (variable or numeric value),
+//      a comparator (one of LT, LEQ, EQ, NEQ, GEQ, GT),
+//      and a RHS value (variable or numeric value).
+//   The result of the comparison will be stored in the Bool address.
+
+NUM y 0
+BOOL isZero
+CMP isZero y EQ 0
+
+//   JMP jumps a relative number if its Bool address has the value True.
+
+JMP isZero 1
+
+//   Important: The program counter always jumps one down after completing an instruction.
+//   This must be accounted for when entering a relative jump value.

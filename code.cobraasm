@@ -1,0 +1,4 @@
+STR mystr "Hello world!"
+NUM x <LEN>.mystr
+NUM y <LEN>.x
+OUT y

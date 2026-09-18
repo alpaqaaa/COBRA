@@ -79,6 +79,3 @@ SUB exp 1
 GOTO [exp_GT_1] -LOOP
 RET NUM res
 ENDDEF
-
-div 6 3
-OUT @RET

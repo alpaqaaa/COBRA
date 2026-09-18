@@ -444,7 +444,6 @@ def import_module(index, *args):
         try:
             with open(f"{arg}.cobmod") as f:
                 code = f.read().splitlines()
-            print(code)
             run(code)
         except:
             raise ImportError(str(index) + f": Unknown module '{args[0]}'")
@@ -549,7 +548,6 @@ def run(program):
     index = 0 
 
     while index < len(program):
-        print(program[index])
         index = execute(index, program) 
 
 with open("code.cobraasm") as f:

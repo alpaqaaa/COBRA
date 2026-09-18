@@ -1,0 +1,41 @@
+DEF if NUM lhs STR cmp NUM rhs NUM size
+
+ADD size 1
+
+JMP ![cmp_IS_"<"] 2
+GOTO [lhs_LT_rhs] -TRUE
+GOTO True -FALSE
+
+JMP ![cmp_IS_"<="] 2
+GOTO [lhs_LEQ_rhs] -TRUE
+GOTO True -FALSE
+
+JMP ![cmp_IS_"=="] 2
+GOTO [lhs_EQ_rhs] -TRUE
+GOTO True -FALSE
+
+JMP ![cmp_IS_"<>"] 2
+GOTO [lhs_NEQ_rhs] -TRUE
+GOTO True -FALSE
+
+JMP ![cmp_IS_">="] 2
+GOTO [lhs_GEQ_rhs] -TRUE
+GOTO True -FALSE
+
+JMP ![cmp_IS_">"] 1
+GOTO [lhs_GT_rhs] -TRUE
+GOTO True -FALSE
+
+-TRUE
+INSERT JMP True @RET
+RET NUM 0
+
+-FALSE
+INSERT JMP True @RET
+RET NUM size
+ENDDEF
+
+DEF else NUM size
+INSERT JMP True @RET
+RET NUM size
+ENDDEF

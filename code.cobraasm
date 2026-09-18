@@ -1,4 +1,17 @@
-IMPORT math
+IMPORT math ifelse
 
-math.mul 4 5
-OUT @RET
+STR userinput
+
+-GETINPUT
+IN userinput
+GOTO !<IS_NUM>.userinput -GETINPUT
+
+if userinput == 1234 1
+OUT "1"
+else 4
+if userinput == 1235 1
+OUT "2"
+else 1
+OUT "Incorrect"
+OUT "Done"
+-END

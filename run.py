@@ -26,6 +26,9 @@ types = {
 "BOOL": [("Bool", None)] 
 } 
 
+curmod = "" # what is being evaluated? "" means main module
+module_fns = {}
+
 # "clear" shell 
 def cls(n): 
     print("\n" * n) 
@@ -395,28 +398,38 @@ def compare(index, *args):
     raise NameError(str(index) + ": Referencing unknown variable.") 
 
 def define(index, code, *args): 
-    if args[0] in functions: 
+    fns = {}
+    if len(curmod) == 0:
+        fns = functions
+    else:
+        fns = module_fns[curmod]
+
+    if "." in args[0]:
+        raise NameError(str(index) + ": Function name may not contain dot(s).")
+
+    if args[0] in fns: 
         raise NameError(str(index) + ": Function name already exists.") 
 
     if len(args) % 2 == 0: 
         raise SyntaxError(str(index) + f": DEF given {len(args)} arguments (expected: 1, 3, 5, ...).") 
 
-    functions[args[0]] = [int((len(args)-1) / 2), ["SCOPE ADD"]] 
+
+    fns[args[0]] = [int((len(args)-1) / 2), ["SCOPE ADD"]] 
     i = 1 
     while i < len(args): 
         if args[i] not in ["STR", "NUM", "BOOL"]: 
             raise SyntaxError(str(index) + ": DEF expected (STR, NUM, BOOL) as predefined variable type.") 
-        functions[args[0]][1].append(args[i] + " " + args[i + 1]) 
+        fns[args[0]][1].append(args[i] + " " + args[i + 1]) 
         i += 2 
 
     i = index + 1 
     while i < len(code) and code[i] != "ENDDEF": 
-        functions[args[0]][1].append(code[i]) 
+        fns[args[0]][1].append(code[i]) 
         i += 1 
     if i >= len(code): 
         raise SyntaxError(str(index) + ": DEF expected ENDDEF") 
 
-    functions[args[0]][1].append("SCOPE DEL") 
+    fns[args[0]][1].append("SCOPE DEL") 
 
     return i - index 
 
@@ -481,6 +494,18 @@ def set_output(index, *args):
 
     print(" ".join(output)) 
 
+def define_module(index, *args):
+    if index != 0:
+        raise SyntaxError("MODULE define must be at top of file")
+    global curmod
+    if len(args) == 0:
+        curmod = ""
+        return
+    if len(args) != 1:
+        raise SyntaxError(str(index) + f": Expected single module name")
+    curmod = args[0]
+    module_fns[curmod] = {}
+
 def import_module(index, *args):
     for arg in args:
         try:
@@ -489,6 +514,17 @@ def import_module(index, *args):
             run(code)
         except:
             raise ImportError(str(index) + f": Unknown module '{args[0]}'")
+
+def do_call(index, name, fns, *args):
+    if len(args) == fns[name][0]: 
+        inserted_values = fns[name][1].copy() 
+        i = 0 
+        while i < len(args): 
+            inserted_values[i+1] += " " + str(args[i]) 
+            i += 1 
+        run(inserted_values) 
+    else: 
+        raise SyntaxError(str(index) + f": {call} given {len(args)} arguments (expected {fns[name][0]}).") 
 
 def execute(index, program): 
     line_split = asplit(index, program[index]) 
@@ -561,6 +597,9 @@ def execute(index, program):
         case "TYPE": 
             create_type(index, *args)
 
+        case "MODULE":
+            define_module(index, *args)
+
         case "IMPORT":
             import_module(index, *args)
 
@@ -568,16 +607,20 @@ def execute(index, program):
             pass 
 
         case _: 
-            if call in functions: 
-                if len(args) == functions[call][0]: 
-                    inserted_values = functions[call][1].copy() 
-                    i = 0 
-                    while i < len(args): 
-                        inserted_values[i+1] += " " + str(args[i]) 
-                        i += 1 
-                    run(inserted_values) 
-                else: 
-                    raise SyntaxError(str(index) + f": {call} given {len(args)} arguments (expected {functions[call][0]}).") 
+            if "." in call:
+                parts = call.split(".")
+                if parts[0] in module_fns:
+                    fns = module_fns[parts[0]]
+                    if parts[1] in fns:
+                        do_call(index, parts[1], module_fns[parts[0]], *args)
+                    else:
+                        raise NameError(str(index) + ": Function does not exist in module.") 
+                else:
+                    raise NameError(str(index) + ": Unknown module.") 
+            elif len(curmod) == 0 and call in functions: 
+                do_call(index, call, functions, *args)
+            elif len(curmod) != 0 and call in module_fns[curmod]:
+                do_call(index, call, module_fns[curmod], *args)
             elif call in types: 
                 create_instanceOf_type(index, call, *args) 
             elif call[0] == "-": 

@@ -1,6 +1,4 @@
-STR x
--GETINPUT
-IN x
-GOTO !<IS_NUM>.x -GETINPUT
-GOTO [<LEN>.x_NEQ_4] -GETINPUT
-OUT x
+IMPORT math
+
+math.mul 4 5
+OUT @RET

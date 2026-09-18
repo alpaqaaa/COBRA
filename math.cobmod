@@ -1,3 +1,5 @@
+MODULE math
+
 DEF abs NUM a
 JMP [a_GEQ_0] 3
 NUM x 0

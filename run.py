@@ -1,3 +1,5 @@
+import time
+
 scopes = [{}] 
 object_vars = [] 
 
@@ -534,7 +536,7 @@ def do_call(index, name, fns, *args):
             i += 1 
         run(inserted_values) 
     else: 
-        raise SyntaxError(str(index) + f": {call} given {len(args)} arguments (expected {fns[name][0]}).") 
+        raise SyntaxError(str(index) + f": CALL given {len(args)} arguments (expected {fns[name][0]}).") 
 
 def execute(index, program): 
     line_split = asplit(index, program[index]) 
@@ -646,6 +648,7 @@ def run(program):
     index = 0 
 
     while index < len(program):
+        scopes[0]['@TIME'] = ('Number', int(time.time_ns()/1000)%65536)
         if "@INSERT" in scopes[-1]:
             program.insert(index, ' '.join(scopes[-1]["@INSERT"]))
             del scopes[-1]["@INSERT"]

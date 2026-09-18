@@ -1,17 +1,42 @@
-IMPORT math ifelse
+IMPORT math
 
-STR userinput
+NUM maxValue 10000
 
--GETINPUT
-IN userinput
-GOTO !<IS_NUM>.userinput -GETINPUT
+math.random 1 maxValue
+NUM result @RET
 
-if userinput == 1234 1
-OUT "1"
-else 4
-if userinput == 1235 1
-OUT "2"
-else 1
-OUT "Incorrect"
-OUT "Done"
--END
+STR Guess
+NUM GuessNum
+NUM guesses 1
+
+GOTO True -MAINLOOP
+
+-NOT_NUMBER
+OUT "Error: Please enter a number"
+GOTO True -MAINLOOP
+
+-NOT_IN_RANGE
+OUT "Error: Please enter a number between 0 and" maxValue "."
+GOTO True -MAINLOOP
+
+-SMALLER
+OUT "The number you're looking for is smaller."
+INC guesses
+GOTO True -MAINLOOP
+
+-LARGER
+OUT "The number you're looking for is larger."
+INC guesses
+GOTO True -MAINLOOP
+
+-MAINLOOP
+IN Guess
+GOTO !<IS_NUM>.Guess -NOT_NUMBER
+SET GuessNum Guess
+GOTO [GuessNum_LT_0] -NOT_IN_RANGE
+GOTO [GuessNum_GT_maxValue] -NOT_IN_RANGE
+GOTO [GuessNum_LT_result] -LARGER
+GOTO [GuessNum_GT_result] -SMALLER
+
+OUT "You guessed correctly!"
+OUT "Guesses:" guesses

@@ -49,6 +49,30 @@ def asplit(index, line):
         raise SyntaxError(str(index) + ': " expected.') 
     return split_line
 
+def is_number(x):
+    if isinstance(x, int) or (isinstance(x, str) and x.isdigit()):
+        return True
+
+    for scope in reversed(scopes):
+        if x in scope:
+            if scope[x][0] == "Number":
+                return True
+            return False
+
+    return False
+
+def is_bool(x):
+    if isinstance(x, bool) or (isinstance(x, str) and x in ["True", "False", "1", "0"]):
+        return True
+
+    for scope in reversed(scopes):
+        if x in scope:
+            if scope[x][0] == "Bool":
+                return True
+            return False
+
+    return False
+
 # make program understand numeric values (or representative variable names) 
 def resolve_number(index, num): 
 # handling uninitialized vars 
@@ -119,7 +143,25 @@ def resolve_bool(index, txt)->bool:
 
     if txt[0] == "[" and txt[-1] == "]": 
         args = txt[1:-1].split('_') 
-        return compare_raw(index, *args) 
+        return compare_raw(index, *args)
+
+    if txt[0] == "<": 
+        n_idx = 1 
+        while n_idx < len(txt) and txt[n_idx] != ">": 
+            n_idx += 1 
+        attribute = txt[1:n_idx] 
+        try: 
+            string = txt[n_idx+2:] 
+        except: 
+            raise SyntaxError(str(index) + f"Attribute {attribute} expected parent but never got one.") 
+
+        match attribute: 
+            case "IS_NUM": 
+                return is_number(string)
+            case "IS_BOOL":
+                return is_bool(string)
+            case _:
+                AttributeError(str(index) + f"Invalid attribute {attribute}.") 
 
     raise ValueError(str(index) + ": Invalid value for type Bool.") 
 

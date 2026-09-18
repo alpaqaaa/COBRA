@@ -352,7 +352,7 @@ def compare(index, *args):
         scope_idx -= 1 
     raise NameError(str(index) + ": Referencing unknown variable.") 
 
-def define(index, *args): 
+def define(index, code, *args): 
     if args[0] in functions: 
         raise NameError(str(index) + ": Function name already exists.") 
 
@@ -439,6 +439,16 @@ def set_output(index, *args):
 
     print(" ".join(output)) 
 
+def import_module(index, *args):
+    for arg in args:
+        try:
+            with open(f"{arg}.cobmod") as f:
+                code = f.read().splitlines()
+            print(code)
+            run(code)
+        except:
+            raise ImportError(str(index) + f": Unknown module '{args[0]}'")
+
 def execute(index, program): 
     line_split = asplit(index, program[index]) 
 
@@ -495,7 +505,7 @@ def execute(index, program):
             return goto(index, program, *args) 
 
         case "DEF": 
-            return index + define(index, *args) 
+            return index + define(index, program, *args) 
 
         case "SCOPE": 
             handle_scope(index, *args) 
@@ -508,7 +518,10 @@ def execute(index, program):
             cls(100)
 
         case "TYPE": 
-            create_type(index, *args) 
+            create_type(index, *args)
+
+        case "IMPORT":
+            import_module(index, *args)
 
         case "//" | "" | "ENDDEF": 
             pass 
@@ -536,9 +549,10 @@ def run(program):
     index = 0 
 
     while index < len(program):
+        print(program[index])
         index = execute(index, program) 
 
-with open("math.cobmod") as f:
+with open("code.cobraasm") as f:
     code = f.read().splitlines() 
 
 cls(100) 

@@ -508,6 +508,8 @@ def define_module(index, *args):
         return
     if len(args) != 1:
         raise SyntaxError(str(index) + f": Expected single module name")
+    if args[0] in module_fns:
+        raise LookupError(str(index) + f": Cannot redefine module")
     curmod = args[0]
     module_fns[curmod] = {}
 

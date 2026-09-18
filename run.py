@@ -90,8 +90,7 @@ def resolve_number(index, num):
         try: 
             string = num[n_idx+2:] 
         except: 
-            raise SyntaxError(str(index) + f"Attribute {attribute} expected parent but never got one.") 
-
+            raise SyntaxError(str(index) + f"Attribute {attribute} expected parent but never got one.")
         match attribute: 
             case "LEN": 
                 return len(resolve_string(index, string)) 
@@ -109,7 +108,7 @@ def resolve_number(index, num):
             if num in scope: 
                 return resolve_number(index, scope[num][1]) 
 
-        raise ValueError(str(index) + ": Invalid value for type Number.") 
+        raise ValueError(str(index) + f": Invalid value for type Number.") 
     return int(num) 
 
 # make program understand string values (or representative variable names) 
@@ -163,7 +162,7 @@ def resolve_bool(index, txt)->bool:
             case _:
                 AttributeError(str(index) + f"Invalid attribute {attribute}.") 
 
-    raise ValueError(str(index) + ": Invalid value for type Bool.") 
+    raise ValueError(str(index) + f": Invalid value for type Bool.") 
 
 def resolve_object(index, *args): 
     if len(args) != 1: 
@@ -444,7 +443,13 @@ def handle_return(index, *args):
     try: 
         scopes[-2]["@RET"] = return_value 
     except: 
-        raise LookupError(str(index) + ": RET used in global scope.") 
+        raise LookupError(str(index) + ": RET used in global scope.")
+
+def handle_insert(index, args):
+    try:
+        scopes[-2]["@INSERT"] = args
+    except:
+        raise LookupError(str(index) + ": INSERT used in global scope.")
 
 def create_type(index, *args): 
     if len(args) < 3 or len(args)%2 == 0: 
@@ -551,6 +556,9 @@ def execute(index, program):
         case "SCOPE": 
             handle_scope(index, *args) 
 
+        case "INSERT":
+            handle_insert(index, args)
+
         case "RET": 
             handle_return(index, *args) 
             return len(program) - 1
@@ -590,6 +598,10 @@ def run(program):
     index = 0 
 
     while index < len(program):
+        if "@INSERT" in scopes[-1]:
+            program.insert(index, ' '.join(scopes[-1]["@INSERT"]))
+            del scopes[-1]["@INSERT"]
+
         index = execute(index, program) 
 
 with open("code.cobraasm") as f:

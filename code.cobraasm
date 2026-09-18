@@ -1,6 +1,17 @@
-STR x
+IMPORT math ifelse
+
+STR userinput
+
 -GETINPUT
-IN x
-GOTO !<IS_NUM>.x -GETINPUT
-GOTO [<LEN>.x_NEQ_4] -GETINPUT
-OUT x
+IN userinput
+GOTO !<IS_NUM>.userinput -GETINPUT
+
+if userinput == 1234 1
+OUT "1"
+else 4
+if userinput == 1235 1
+OUT "2"
+else 1
+OUT "Incorrect"
+OUT "Done"
+-END

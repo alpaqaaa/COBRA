@@ -1,0 +1,84 @@
+DEF abs NUM a
+JMP [a_GEQ_0] 3
+NUM x 0
+SUB x a
+SET a x
+RET NUM a
+ENDDEF
+
+DEF mulSign NUM a NUM b
+BOOL aIsPositive [a_GEQ_0]
+BOOL bIsPositive [b_GEQ_0]
+RET BOOL [aIsPositive_IS_bIsPositive]
+ENDDEF
+
+DEF max NUM a NUM b
+JMP [a_GEQ_b] 1
+SET a b
+RET NUM a
+ENDDEF
+
+DEF min NUM a NUM b
+JMP [a_LT_b] 1
+SET a b
+RET NUM a
+ENDDEF
+
+DEF mul NUM a NUM b
+BOOL isPos
+mulSign a b
+SET isPos @RET
+abs a
+SET a @RET
+abs b
+SET b @RET
+max a b
+NUM large @RET
+min a b
+NUM small @RET
+NUM res 0
+-LOOP
+ADD res large
+SUB small 1
+GOTO [small_GT_0] -LOOP
+GOTO isPos -RETURN
+SET a res
+SUB a res
+SUB a res
+SET res a
+-RETURN
+RET NUM res
+ENDDEF
+
+DEF div NUM base NUM divisor
+NUM iter 0
+-LOOP
+GOTO [base_LT_divisor] -RETURN
+SUB base divisor
+ADD iter 1
+GOTO True -LOOP
+-RETURN
+RET NUM iter
+ENDDEF
+
+DEF mod NUM base NUM divisor
+-LOOP
+GOTO [base_LT_divisor] -RETURN
+SUB base divisor
+GOTO True -LOOP
+-RETURN
+RET NUM base
+ENDDEF
+
+DEF pow NUM base NUM exp
+NUM res base
+-LOOP
+mul res base
+SET res @RET
+SUB exp 1
+GOTO [exp_GT_1] -LOOP
+RET NUM res
+ENDDEF
+
+div 6 3
+OUT @RET

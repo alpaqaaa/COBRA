@@ -55,7 +55,7 @@ def is_number(x):
 
     for scope in reversed(scopes):
         if x in scope:
-            if scope[x][0] == "Number":
+            if str(scope[x][1]).isdigit():
                 return True
             return False
 

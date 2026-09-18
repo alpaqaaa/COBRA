@@ -55,7 +55,7 @@ NUM iter 0
 -LOOP
 GOTO [base_LT_divisor] -RETURN
 SUB base divisor
-ADD iter 1
+INC iter
 GOTO True -LOOP
 -RETURN
 RET NUM iter
@@ -75,7 +75,17 @@ NUM res base
 -LOOP
 mul res base
 SET res @RET
-SUB exp 1
+DEC exp
 GOTO [exp_GT_1] -LOOP
+RET NUM res
+ENDDEF
+
+DEF fac NUM base
+NUM res 1
+-LOOP
+mul res base
+SET res @RET
+DEC base
+GOTO [base_GT_1] -LOOP
 RET NUM res
 ENDDEF

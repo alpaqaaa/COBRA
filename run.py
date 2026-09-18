@@ -512,11 +512,14 @@ def define_module(index, *args):
     module_fns[curmod] = {}
 
 def import_module(index, *args):
+    global curmod
+    prevmod = curmod
     for arg in args:
         try:
             with open(f"{arg}.cobmod") as f:
                 code = f.read().splitlines()
             run(code)
+            curmod = prevmod
         except:
             raise ImportError(str(index) + f": Unknown module '{args[0]}'")
 

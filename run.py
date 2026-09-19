@@ -505,15 +505,30 @@ def create_instanceOf_type(index, call, *args):
         objects[args[0]][param[1]] = (types[param[0]][0][0], args[i+1])
 
 def get_input(index, *args): 
-    if len(args) != 1: 
+    if len(args) < 1 or len(args) > 2: 
         raise SyntaxError(str(index) + f": IN given {len(args)} arguments (expected: 1).") 
+
+    if len(args) == 1:
+        write = ""
+    else:
+        write = args[1]
+
     for scope in reversed(scopes): 
         if args[0] in scope: 
             if scope[args[0]][0] != "String": 
                 raise TypeError(str(index) + ": Calling IN on non String-type.") 
             else: 
-                scope[args[0]] = ("String", input(args[0] + ": ")) 
-                return 
+                scope[args[0]] = ("String", input(write)) 
+                return
+
+    if "." in args[0]:
+        parent = args[0][:args[0].index(".")]
+        child = args[0][args[0].index(".")+1:]
+        if parent in objects:
+            if objects[parent][child][0] != "String":
+                raise TypeError(str(index) + ": Calling IN on non String-type.")
+            objects[parent][child] = (objects[parent][child][0], input(write))
+            return
 
     raise NameError(str(index) + ": Referencing unknown variable.") 
 

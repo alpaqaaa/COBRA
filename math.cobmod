@@ -28,15 +28,15 @@ ENDDEF
 
 DEF mul NUM a NUM b
 BOOL isPos
-math.mulSign a b
+mulSign a b
 SET isPos @RET
-math.abs a
+abs a
 SET a @RET
-math.abs b
+abs b
 SET b @RET
-math.max a b
+max a b
 NUM large @RET
-math.min a b
+min a b
 NUM small @RET
 NUM res 0
 -LOOP
@@ -96,7 +96,7 @@ DEF random NUM min NUM max
 NUM range max
 SUB range min
 INC range
-math.mod @TIME range
+mod @TIME range
 NUM res @RET
 ADD res min
 RET NUM res

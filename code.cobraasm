@@ -1,2 +1,4 @@
-TYPE Person STR name NUM age
-Person arie Arie 21
+IMPORT math
+
+math.mul 5 5
+OUT @RET

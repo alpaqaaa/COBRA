@@ -113,7 +113,10 @@ def resolve_number(index, num):
             if num in scope: 
                 return resolve_number(index, scope[num][1]) 
 
-        raise ValueError(str(index) + f": Invalid value for type Number.") 
+        if "." in num:
+            return resolve_object(index, num)
+
+        raise ValueError(str(index) + f": Invalid value for type Number.")
     return int(num) 
 
 # make program understand string values (or representative variable names) 
@@ -125,6 +128,9 @@ def resolve_string(index, txt):
     for scope in reversed(scopes): 
         if txt in scope: 
             return resolve_string(index, scope[txt][1]) 
+
+    if "." in txt:
+        return resolve_object(index, txt)
 
     return str(txt) 
 
@@ -149,6 +155,9 @@ def resolve_bool(index, txt)->bool:
         args = txt[1:-1].split('_') 
         return compare_raw(index, *args)
 
+    if "." in txt:
+        return resolve_object(index, txt)
+
     if txt[0] == "<": 
         n_idx = 1 
         while n_idx < len(txt) and txt[n_idx] != ">": 
@@ -169,14 +178,13 @@ def resolve_bool(index, txt)->bool:
 
     raise ValueError(str(index) + f": Invalid value for type Bool.") 
 
-def resolve_object(index, *args): 
-    if len(args) != 1: 
-        raise SyntaxError(str(index) + ": Error resolving type to primitives.") 
-    if args[0][0] in ["STR", "NUM", "BOOL", "String", "Number", "Bool"]: 
-        return args[0] 
-    else: 
-        for param in type[args[0]]: 
-            return resolve_object(index, param) 
+def resolve_object(index, x):
+    parent = x[:x.index(".")]
+    child = x[x.index(".")+1:]
+    if parent in objects:
+        if objects[parent][child][0] == "Pointer":
+            return resolve_object(index, objects[parent][child][1])
+        return objects[parent][child][1]
 
 def create_number(index, *args): 
 # one arg: name, no initialization | two args: name, value 
@@ -241,12 +249,7 @@ def string_value_of(index, x):
         return str(compare_raw(index, *args))
 
     if "." in x:
-        parent = x[:x.index(".")]
-        child = x[x.index(".")+1:]
-        if parent in objects:
-            if objects[parent][child][0] == "Pointer":
-                return string_value_of(index, objects[parent][child][1])
-            return objects[parent][child][1]
+        return resolve_object(index, x)
 
     return str(x)
 
@@ -264,6 +267,13 @@ def set_var_to(index, *args):
                 case "Bool": 
                     scope[args[0]] = ("Bool", resolve_bool(index, args[1])) 
             return 
+
+    if "." in args[0]:
+        parent = args[0][:args[0].index(".")]
+        child = args[0][args[0].index(".")+1:]
+        if parent in objects:
+            objects[parent][child] = (objects[parent][child][0], args[1])
+            return
 
     raise NameError(str(index) + ": Referencing unknown variable.") 
 
@@ -479,7 +489,11 @@ def create_type(index, *args):
     if len(args) < 3 or len(args)%2 == 0: 
         raise SyntaxError(str(index) + f": TYPE given {len(args)} arguments (expected: 3, 5, 7, ...).") 
     type_name = args[0] 
-    params = [resolve_object(index, (args[2*x+1], args[2*x+2])) for x in range(int((len(args)-1)/2))] 
+    params = []
+    i = 1
+    while i < len(args):
+        params.append((args[i], args[i+1]))
+        i += 2
     types[type_name] = params 
     return 
 

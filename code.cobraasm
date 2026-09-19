@@ -1,4 +1,5 @@
 TYPE Person STR name NUM age
 Person person1 George 53
 Person person2 Tara 28
+SET person2.name George
 OUT person2.name

@@ -1,4 +1,4 @@
-IMPORT math
-
-math.mul 5 5
-OUT @RET
+TYPE Person STR name NUM age
+Person person1 George 53
+Person person2 Tara 28
+OUT person2.name

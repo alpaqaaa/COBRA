@@ -238,8 +238,17 @@ def string_value_of(index, x):
 
     if x[0] == "[" and x[-1] == "]": 
         args = x[1:-1].split('_') 
-        return str(compare_raw(index, *args)) 
-    return str(x) 
+        return str(compare_raw(index, *args))
+
+    if "." in x:
+        parent = x[:x.index(".")]
+        child = x[x.index(".")+1:]
+        if parent in objects:
+            if objects[parent][child][0] == "Pointer":
+                return string_value_of(index, objects[parent][child][1])
+            return objects[parent][child][1]
+
+    return str(x)
 
 def set_var_to(index, *args): 
     if len(args) != 2: 
@@ -667,6 +676,3 @@ with open("code.cobraasm") as f:
 
 cls(100) 
 run(code)
-
-print(types)
-print(objects)

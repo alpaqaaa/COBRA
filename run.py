@@ -627,7 +627,11 @@ def execute(index, program):
                 if parts[0] in module_fns:
                     fns = module_fns[parts[0]]
                     if parts[1] in fns:
+                        global curmod
+                        prevmod = curmod
+                        curmod = parts[0]
                         do_call(index, parts[1], module_fns[parts[0]], *args)
+                        curmod = prevmod
                     else:
                         raise NameError(str(index) + ": Function does not exist in module.") 
                 else:

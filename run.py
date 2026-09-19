@@ -1,7 +1,7 @@
 import time
 
-scopes = [{}] 
-object_vars = [] 
+scopes = [{}]
+objects = {}
 
 functions = { 
 # reserving function names 
@@ -26,7 +26,7 @@ types = {
 "STR": [("String", None)], 
 "NUM": [("Number", None)], 
 "BOOL": [("Bool", None)] 
-} 
+}
 
 curmod = "" # what is being evaluated? "" means main module
 module_fns = {}
@@ -471,12 +471,15 @@ def create_type(index, *args):
         raise SyntaxError(str(index) + f": TYPE given {len(args)} arguments (expected: 3, 5, 7, ...).") 
     type_name = args[0] 
     params = [resolve_object(index, (args[2*x+1], args[2*x+2])) for x in range(int((len(args)-1)/2))] 
-    print(params) 
     types[type_name] = params 
     return 
 
-def create_instanceOf_type(index, call, *args): 
-    return 
+def create_instanceOf_type(index, call, *args):
+    if len(args) != len(types[call])+1:
+        raise SyntaxError(str(index) + f": {call} given {len(args)} arguments (expected: {len(types[call])+1}).")
+    objects[args[0]] = {'type': call}
+    for i, param in enumerate(types[call]):
+        objects[args[0]][param[1]] = (types[param[0]][0][0], args[i+1])
 
 def get_input(index, *args): 
     if len(args) != 1: 
@@ -660,3 +663,6 @@ with open("code.cobraasm") as f:
 
 cls(100) 
 run(code)
+
+print(types)
+print(objects)
